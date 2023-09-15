@@ -1,4 +1,4 @@
-# Implementations of Classic nd Deep Reinforcement Learning algorithm in C 
+# Implementations of Classic and Deep Reinforcement Learning algorithm
 
 This repo contains two implementations of Reinforcement Learning algorithms:
 
