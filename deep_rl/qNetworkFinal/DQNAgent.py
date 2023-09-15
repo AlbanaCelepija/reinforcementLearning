@@ -13,7 +13,6 @@ class DQNAgent:
             self, env, configs, discount_factor=0.95,
             epsilon_greedy=1.0, epsilon_min=0.01,
             epsilon_decay=0.995, learning_rate=1e-3,
-            target_network_frequency = 50,
             tau = 0.99):
         self.env = env
         self.configs = configs
@@ -28,7 +27,7 @@ class DQNAgent:
         self.epsilon_decay = epsilon_decay
         self.lr = learning_rate
         self.tau = tau
-        self.target_network_frequency = target_network_frequency
+        self.target_network_frequency = int(self.configs.algorithm_parameters["target_network_frequency"])
         self._build_qNetwork()
 
     def _build_qNetwork(self):
