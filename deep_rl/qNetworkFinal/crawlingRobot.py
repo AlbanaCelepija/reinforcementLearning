@@ -23,7 +23,7 @@ class CrawlingRobot:
         pygame.init()
         self.window_size = window_size
         self.goal = goal_distance
-        self.level_size = ((self.window_size[0])*2, 600)
+        self.level_size = ((abs(self.goal)+self.window_size[0])*2, 600)
         self.base_offset = self.level_size[0] / 2
         self.current_timesteps = 0
         self.current_steps = 0
@@ -48,6 +48,9 @@ class CrawlingRobot:
         self.screen = pygame.display.set_mode(self.window_size)
         self.pymunk_layer = pygame.Surface(self.level_size)
         self.draw_options = pymunk.pygame_util.DrawOptions(self.pymunk_layer)
+        
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.flag = pygame.image.load(dir_path + '/res/flag.png')
 
         self.camera = [-self.base_offset, -100]
         self.update_camera()
@@ -85,6 +88,15 @@ class CrawlingRobot:
         ground = pymunk.Segment(self.space.static_body, (0, 400), (self.level_size[0], 400), 4)
         ground.friction = 10
         self.space.add(ground)
+
+        # walls
+        wall_left = pymunk.Segment(self.space.static_body, (5, 400), (5, 200), 5)
+        wall_left.friction = 10
+        self.space.add(wall_left)
+
+        wall_right = pymunk.Segment(self.space.static_body, (self.level_size[0]-5, 400), (self.level_size[0]-5, 200), 5)
+        wall_right.friction = 10
+        self.space.add(wall_right)
 
     def _construct_robot(self):
         # robot body
@@ -242,8 +254,11 @@ class CrawlingRobot:
                 self.graph_rewards = self.plot_rewards()
 
     def check_if_past_goal(self):
-        return (self.robot_body.position.x-self.base_offset) >= self.goal
-        
+        if self.goal > 0:
+            return (self.robot_body.position.x-self.base_offset) >= self.goal
+        else:
+            return (self.robot_body.position.x-self.base_offset) <= self.goal
+
     def get_current_timestep(self):
         return np.sum(self.episode_time_results) + (self.current_timesteps * self.PHYSICS_TIME_STEP)
 
@@ -267,7 +282,10 @@ class CrawlingRobot:
     def get_distance(self):
         distance = self.robot_body.position.x - self.last_position
         self.last_position = self.robot_body.position.x
-       
+        
+        # if goal is to the left, reward has to be negated
+        if self.goal < 0:
+            distance = -distance
         self.previous_rewards.append(distance)
         return distance
 
@@ -296,6 +314,7 @@ class CrawlingRobot:
         self.space.debug_draw(self.draw_options)
         self.screen.blit(self.pymunk_layer, self.camera)
 
+        self.screen.blit(self.flag, (self.base_offset + self.goal + self.camera[0], 180+self.camera[1]))
         control_text1 = font.render(text1, True, (0, 0, 0))
         self.screen.blit(control_text1, (10, 5))
         

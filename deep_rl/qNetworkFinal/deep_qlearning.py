@@ -1,8 +1,10 @@
 import numpy as np
 from collections import namedtuple
 from crawlingrobot_discrete_env import CrawlingRobotDiscreteEnv
+from config import Config
 from DQNAgent import DQNAgent
 
+configs = Config("config.ini")
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state', 'done'))
 
 # General settings
@@ -28,11 +30,11 @@ def fill_replay_memory(env, state, agent):
 
 if __name__ == '__main__':
     env = CrawlingRobotDiscreteEnv()
-    agent = DQNAgent(env)
+    agent = DQNAgent(env, configs)
     state = env.reset()
     state = np.reshape(state, [1, agent.state_size])
-
     fill_replay_memory(env, state, agent)
+
     total_rewards, losses = [], []
     for e in range(EPISODES):
         state = env.reset()
@@ -52,5 +54,5 @@ if __name__ == '__main__':
                 total_rewards.append(i)
                 print(f'Episode: {e}/{EPISODES}, Total reward: {i}')
                 break
-            loss = agent.replay(batch_size)
+            loss = agent.replay(batch_size, e)
             losses.append(loss)
