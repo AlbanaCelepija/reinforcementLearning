@@ -1,2 +1,4 @@
-## Implementations of Classic and Deep Reinforcement Learning algorithm in C 
+## Implementations of Classic and Deep Reinforcement Learning algorithm
+
+
 
